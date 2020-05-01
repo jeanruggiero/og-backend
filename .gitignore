@@ -1,0 +1,4 @@
+og-credentials.csv
+/venv
+.idea
+/og_backend/__pycache__
