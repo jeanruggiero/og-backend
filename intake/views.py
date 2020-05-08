@@ -1,13 +1,16 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 import json
 from .dynamo import connect
 
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 import uuid
 
 
+@api_view(['GET'])
 def patient_id(request):
 
     if request.method == 'GET':
@@ -17,7 +20,6 @@ def patient_id(request):
         dob = request.GET.get('DOB')
         email = request.GET.get('email').lower()
 
-
         dynamodb = connect()
         table = dynamodb.Table('Patients')
         response = table.query(
@@ -25,13 +27,10 @@ def patient_id(request):
             KeyConditionExpression=Key('LastName').eq(last_name)
         )
 
-        print(response)
-
-
         for item in response['Items']:
             if item['LastName'] == last_name and item['FirstName'] == first_name and item['DOB'] == dob and \
                     item['Email'] == email:
-                return HttpResponse(item['uuid'])
+                return Response(item['uuid'])
 
         item = {
             'LastName': last_name,
@@ -48,38 +47,10 @@ def patient_id(request):
 
         table.put_item(Item=item)
 
-        return HttpResponse(item['uuid'])
+        return Response(item['uuid'])
 
 
-def update_patient(request, id):
-
-    if request.method == 'POST':
-        dynamodb = connect()
-        table = dynamodb.Table('Patients')
-
-        data = json.loads(request.body.decode())
-
-        updates = []
-        expression_attribute_values = {}
-        for key, value in data.items():
-            if value != "":
-                updates.append(f"{key} = :{key}")
-                expression_attribute_values[f":{key}"] = value
-
-        update_expression = "set " + ", ".join(updates)
-
-        response = table.update_item(
-            Key={'uuid': id},
-            UpdateExpression=update_expression,
-            ExpressionAttributeValues=expression_attribute_values,
-            ReturnValues="UPDATED_NEW"
-        )
-
-        return HttpResponse()
-
-    return HttpResponse(status=403)
-
-
+@api_view(['GET'])
 def new_intake(request):
 
     if request.method == 'GET':
@@ -95,33 +66,37 @@ def new_intake(request):
 
         table.put_item(Item=item)
 
-        return HttpResponse(item['uuid'])
+        return Response(item['uuid'])
 
+
+@api_view(['PUT'])
 def update_intake(request, id):
 
-    dynamodb = connect()
-    table = dynamodb.Table('IntakeForms')
+    if request.method == 'PUT':
 
-    data = json.loads(request.body.decode())
+        dynamodb = connect()
+        table = dynamodb.Table('IntakeForms')
 
-    updates = []
-    expression_attribute_values = {}
+        data = json.loads(request.body.decode())
 
-    for key, value in data.items():
-        if value != "":
-            updates.append(f"{key} = :{key}")
-            expression_attribute_values[f":{key}"] = value
+        updates = []
+        expression_attribute_values = {}
 
-    update_expression = "set " + ", ".join(updates)
+        for key, value in data.items():
+            if value != "":
+                updates.append(f"{key} = :{key}")
+                expression_attribute_values[f":{key}"] = value
 
-    response = table.update_item(
-        Key={'uuid': id},
-        UpdateExpression=update_expression,
-        ExpressionAttributeValues=expression_attribute_values,
-        ReturnValues="UPDATED_NEW"
-    )
+        update_expression = "set " + ", ".join(updates)
 
-    return HttpResponse()
+        response = table.update_item(
+            Key={'uuid': id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ReturnValues="UPDATED_NEW"
+        )
+
+        return Response()
 
 
 
