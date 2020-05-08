@@ -7,19 +7,23 @@ from .dynamo import connect
 
 import uuid
 
+
 def patient_id(request):
 
     if request.method == 'GET':
 
         last_name = request.GET.get('lastName').lower()
         first_name = request.GET.get('firstName').lower()
-        dob = request.GET.get('dob')
+        dob = request.GET.get('DOB')
         email = request.GET.get('email').lower()
 
 
         dynamodb = connect()
         table = dynamodb.Table('Patients')
-        response = table.query(KeyConditionExpression=Key('LastName').eq(last_name))
+        response = table.query(
+            IndexName="LastName-index",
+            KeyConditionExpression=Key('LastName').eq(last_name)
+        )
 
         print(response)
 
@@ -45,4 +49,79 @@ def patient_id(request):
         table.put_item(Item=item)
 
         return HttpResponse(item['uuid'])
+
+
+def update_patient(request, id):
+
+    if request.method == 'POST':
+        dynamodb = connect()
+        table = dynamodb.Table('Patients')
+
+        data = json.loads(request.body.decode())
+
+        updates = []
+        expression_attribute_values = {}
+        for key, value in data.items():
+            if value != "":
+                updates.append(f"{key} = :{key}")
+                expression_attribute_values[f":{key}"] = value
+
+        update_expression = "set " + ", ".join(updates)
+
+        response = table.update_item(
+            Key={'uuid': id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ReturnValues="UPDATED_NEW"
+        )
+
+        return HttpResponse()
+
+    return HttpResponse(status=403)
+
+
+def new_intake(request):
+
+    if request.method == 'GET':
+        patient_id = request.GET.get('patientId');
+
+        dynamodb = connect()
+        table = dynamodb.Table('IntakeForms')
+
+        item = {
+            'uuid': str(uuid.uuid4()),
+            'PatientId': patient_id
+        }
+
+        table.put_item(Item=item)
+
+        return HttpResponse(item['uuid'])
+
+def update_intake(request, id):
+
+    dynamodb = connect()
+    table = dynamodb.Table('IntakeForms')
+
+    data = json.loads(request.body.decode())
+
+    updates = []
+    expression_attribute_values = {}
+
+    for key, value in data.items():
+        if value != "":
+            updates.append(f"{key} = :{key}")
+            expression_attribute_values[f":{key}"] = value
+
+    update_expression = "set " + ", ".join(updates)
+
+    response = table.update_item(
+        Key={'uuid': id},
+        UpdateExpression=update_expression,
+        ExpressionAttributeValues=expression_attribute_values,
+        ReturnValues="UPDATED_NEW"
+    )
+
+    return HttpResponse()
+
+
 
