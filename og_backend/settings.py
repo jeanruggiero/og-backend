@@ -4,7 +4,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['django-env.eba-bqurfhwn.us-west-2.elasticbeanstalk.com', 'api.highlift.io', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['optometricgroup.us-west-2.elasticbeanstalk.com', 'api.highlift.io', 'localhost', '127.0.0.1']
 
 CORS_ORIGIN_WHITELIST = ['app.highlift.io']
 CSRF_TRUSTED_ORIGINS = ['app.highlift.io']
