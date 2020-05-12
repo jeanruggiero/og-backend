@@ -9,11 +9,15 @@ COPY nginx.default /etc/nginx/sites-available/default
 
 RUN mkdir -p /opt/app
 RUN mkdir -p /opt/app/og_backend
+RUN mkdir -p /etc/pki/tls/certs
 
 COPY requirements.txt start-server.sh /opt/app/
 COPY og_backend /opt/app/og_backend/og_backend
 COPY intake /opt/app/og_backend/intake
 COPY static /opt/app/og_backend/static
+
+COPY server.crt /etc/pki/tls/certs
+COPY server.key /etc/pki/tls/certs
 
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
