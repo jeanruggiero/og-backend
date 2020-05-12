@@ -4,9 +4,6 @@ RUN apt-get update && apt-get install nginx vim -y --no-install-recommends
 
 COPY nginx.default /etc/nginx/sites-available/default
 
-#RUN chmod 666 /var/log/nginx/error.log
-#RUN chmod 666 /var/log/nginx/access.log
-
 #RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 #    && ln -sf /def/stderr /var/log/nginx/error.log
 

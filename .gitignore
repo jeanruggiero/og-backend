@@ -3,6 +3,7 @@ og-credentials.csv
 .idea
 /og_backend/__pycache__
 environment_config.sh
+*.pem
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
