@@ -1,6 +1,6 @@
 FROM python:3.7-buster
 
-RUN apt-get update && apt-get install nginx vim -y --no-install-recommends
+RUN apt-get update && apt-get install awscli nginx vim -y --no-install-recommends
 
 COPY nginx.default /etc/nginx/sites-available/default
 
@@ -17,7 +17,8 @@ COPY intake /opt/app/og_backend/intake
 COPY static /opt/app/og_backend/static
 
 COPY server.crt /etc/pki/tls/certs
-COPY /etc/pki/tls/certs/server.key /etc/pki/tls/certs
+#RUN aws s3 cp s3://elasticbeanstalk-us-west-2-757222208482/certs/server.key /etc/pki/tls/certs/server.key
+#COPY /etc/pki/tls/certs/server.key /etc/pki/tls/certs
 
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
