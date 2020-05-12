@@ -1,6 +1,9 @@
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 import json
+
+from django.http import HttpResponse
+
 from .dynamo import connect
 
 from rest_framework import status
@@ -30,7 +33,7 @@ def patient_id(request):
         for item in response['Items']:
             if item['LastName'] == last_name and item['FirstName'] == first_name and item['DOB'] == dob and \
                     item['Email'] == email:
-                return Response(item['uuid'])
+                return HttpResponse(item['uuid'])
 
         item = {
             'LastName': last_name,
@@ -47,7 +50,7 @@ def patient_id(request):
 
         table.put_item(Item=item)
 
-        return Response(item['uuid'])
+        return HttpResponse(item['uuid'])
 
 
 @api_view(['GET'])
@@ -66,7 +69,7 @@ def new_intake(request):
 
         table.put_item(Item=item)
 
-        return Response(item['uuid'])
+        return HttpResponse(item['uuid'])
 
 
 @api_view(['PUT'])
@@ -96,7 +99,4 @@ def update_intake(request, id):
             ReturnValues="UPDATED_NEW"
         )
 
-        return Response()
-
-
-
+        return HttpResponse()

@@ -2,7 +2,10 @@ og-credentials.csv
 /venv
 .idea
 /og_backend/__pycache__
+environment_config.sh
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+

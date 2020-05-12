@@ -4,11 +4,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['django-env.eba-bqurfhwn.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['django-env.eba-bqurfhwn.us-west-2.elasticbeanstalk.com', 'api.highlift.io', 'localhost', '127.0.0.1']
 
-CORS_ORIGIN_WHITELIST = ['https://master.d1tifnnvu21b6i.amplifyapp.com/']
-CSRF_TRUSTED_ORIGINS = ['https://master.d1tifnnvu21b6i.amplifyapp.com/']
+CORS_ORIGIN_WHITELIST = ['app.highlift.io']
+CSRF_TRUSTED_ORIGINS = ['app.highlift.io']
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
