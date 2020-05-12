@@ -19,6 +19,6 @@ WORKDIR /opt/app
 RUN pip install -r requirements.txt
 RUN chown -R www-data:www-data /opt/app
 
-EXPOSE 8020
+EXPOSE 443
 STOPSIGNAL SIGTERM
 CMD ["./start-server.sh"]
