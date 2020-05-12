@@ -13,7 +13,7 @@ COPY nginx.default /etc/nginx/sites-available/default
 RUN mkdir -p /opt/app
 RUN mkdir -p /opt/app/og_backend
 
-COPY requirements.txt start-server.sh environment_config.sh /opt/app/
+COPY requirements.txt start-server.sh /opt/app/
 COPY og_backend /opt/app/og_backend/og_backend
 COPY intake /opt/app/og_backend/intake
 COPY static /opt/app/og_backend/static
@@ -21,7 +21,6 @@ COPY static /opt/app/og_backend/static
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
 RUN chown -R www-data:www-data /opt/app
-CMD ["./environment_config.sh"]
 
 EXPOSE 8020
 STOPSIGNAL SIGTERM
