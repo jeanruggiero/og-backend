@@ -17,7 +17,7 @@ COPY intake /opt/app/og_backend/intake
 COPY static /opt/app/og_backend/static
 
 COPY server.crt /etc/pki/tls/certs
-#COPY server.key /etc/pki/tls/certs
+COPY server.key /etc/pki/tls/certs
 
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
@@ -25,4 +25,4 @@ RUN chown -R www-data:www-data /opt/app
 
 EXPOSE 443
 STOPSIGNAL SIGTERM
-#CMD ["./start-server.sh"]
+CMD ["./start-server.sh"]
