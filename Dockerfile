@@ -25,4 +25,4 @@ RUN chown -R www-data:www-data /opt/app
 
 EXPOSE 443
 STOPSIGNAL SIGTERM
-CMD ["./start-server.sh"]
+#CMD ["./start-server.sh"]
