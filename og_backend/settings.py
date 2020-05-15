@@ -6,8 +6,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['optometricgroup.us-west-2.elasticbeanstalk.com', 'api.highlift.io', 'localhost', '127.0.0.1']
 
-CORS_ORIGIN_WHITELIST = ['app.highlift.io']
-CSRF_TRUSTED_ORIGINS = ['app.highlift.io']
+CORS_ORIGIN_WHITELIST = ['https://app.highlift.io']
+CSRF_TRUSTED_ORIGINS = ['https://app.highlift.io']
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
