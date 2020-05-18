@@ -7,4 +7,5 @@ urlpatterns = [
     #path('patients/<str:id>/', views.update_patient),
     path('intake', views.new_intake),
     path('intake/<str:id>/', views.update_intake),
+    path('appointment_request/', views.appointment_request),
 ]

@@ -100,3 +100,76 @@ def update_intake(request, id):
         )
 
         return HttpResponse()
+
+@api_view(['POST'])
+def appointment_request(request):
+
+    if request.method == 'POST':
+        print(request)
+
+        data = json.loads(request.body.decode())
+
+        print(data)
+
+        patient_info = data.pop('patientInformation')
+
+
+        last_name = patient_info.get('lastName').lower()
+        first_name = patient_info.get('firstName').lower()
+        dob = patient_info.get('DOB')
+        email = patient_info.get('email').lower()
+
+        dynamodb = connect()
+        table = dynamodb.Table('Patients')
+
+        # Get a list of patients from the database whose last name matches
+        response = table.query(
+            IndexName="LastName-index",
+            KeyConditionExpression=Key('LastName').eq(last_name)
+        )
+
+        # Look for this patient in the list of patients returned from the database
+        for item in response['Items']:
+            if item['LastName'] == last_name and item['FirstName'] == first_name and item['DOB'] == dob and \
+                    item['Email'] == email:
+                # Found the requested patient
+                patient_id = item['uuid']
+                break
+        else:
+            # Did not find the requested patient, so add a new one
+            item = {
+                'LastName': last_name,
+                'uuid': str(uuid.uuid4()),
+                'LastNameRepr': patient_info.get('lastName'),
+                'FirstName': first_name,
+                'FirstNameRepr': patient_info.get('firstName'),
+                'DOB': dob,
+                'Email': email
+            }
+
+            if data.get('MI'):
+                item['MI'] = patient_info.get('MI').upper()
+
+            table.put_item(Item=item)
+
+            patient_id = item['uuid']
+
+
+        table = dynamodb.Table('AppointmentRequests')
+
+        data['uuid'] = str(uuid.uuid4())
+        data['PatientId'] = patient_id
+
+        table.put_item(Item=data)
+
+        return HttpResponse()
+
+
+def staff_form_list(request):
+
+    if request.method == 'GET':
+        dynamodb = connect()
+        table = dynamodb.Table('IntakeForms')
+
+        response = table.scan()
+        print(response)
