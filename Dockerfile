@@ -11,7 +11,7 @@ RUN mkdir -p /opt/app
 RUN mkdir -p /opt/app/og_backend
 RUN mkdir -p /etc/pki/tls/certs
 
-COPY requirements.txt start-server.sh /opt/app/
+COPY requirements.txt start-server.sh manage.py /opt/app/
 COPY db.sqlite3 /opt/app/
 COPY og_backend /opt/app/og_backend/og_backend
 COPY intake /opt/app/og_backend/intake
