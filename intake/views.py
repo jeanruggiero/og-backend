@@ -7,8 +7,11 @@ from django.http import HttpResponse
 from .dynamo import connect
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 import uuid
 
@@ -165,11 +168,61 @@ def appointment_request(request):
         return HttpResponse()
 
 
-def staff_form_list(request):
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def form_list(request):
 
     if request.method == 'GET':
         dynamodb = connect()
-        table = dynamodb.Table('IntakeForms')
+        form_table = dynamodb.Table('IntakeForms')
 
-        response = table.scan()
-        print(response)
+        response = form_table.scan(
+            FilterExpression=Attr('dateSubmitted').exists(),
+            ProjectionExpression="#id, PatientId, dateSubmitted",
+            ExpressionAttributeNames={'#id': 'uuid'}
+
+        )
+
+        forms = response['Items']
+        forms.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
+
+        patient_table = dynamodb.Table('Patients')
+
+
+        for form in forms:
+            try:
+                response = patient_table.get_item(
+                    Key={
+                        'uuid': form['PatientId']
+                    }
+                )
+
+                patient = response['Item']
+                form['LastNameRepr'] = patient['LastNameRepr']
+                form['FirstNameRepr'] = patient['FirstNameRepr']
+            except KeyError:
+                continue
+
+        return HttpResponse(json.dumps(forms))
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def form_detail(request, id):
+
+    if request.method == 'GET':
+        dynamodb = connect()
+
+        form_table = dynamodb.Table('IntakeForms')
+        response = form_table.get_item(Key={'uuid': id})
+        form = response['Item']
+
+        patient_table = dynamodb.Table('Patients')
+        response = patient_table.get_item(Key={'uuid': form['PatientId']})
+        patient = response['Item']
+
+        form['patient'] = patient
+
+        return HttpResponse(json.dumps(form))

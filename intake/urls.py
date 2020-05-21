@@ -8,4 +8,6 @@ urlpatterns = [
     path('intake', views.new_intake),
     path('intake/<str:id>/', views.update_intake),
     path('appointment_request/', views.appointment_request),
+    path('forms/', views.form_list),
+    path('forms/<str:id>/', views.form_detail)
 ]

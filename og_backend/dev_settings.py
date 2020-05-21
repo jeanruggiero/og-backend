@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'intake',
 ]
@@ -45,6 +47,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+}
 
 ROOT_URLCONF = 'og_backend.urls'
 
@@ -68,8 +79,12 @@ WSGI_APPLICATION = 'og_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ['RDS_DB_NAME'],
+        'USER': os.environ['RDS_USERNAME'],
+        'PASSWORD': os.environ['RDS_PASSWORD'],
+        'HOST': os.environ['RDS_HOSTNAME'],
+        'PORT': os.environ['RDS_PORT'],
     }
 }
 
