@@ -10,13 +10,14 @@ from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 import uuid
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def patient_id(request):
 
     if request.method == 'GET':
@@ -57,6 +58,7 @@ def patient_id(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def new_intake(request):
 
     if request.method == 'GET':
@@ -76,6 +78,7 @@ def new_intake(request):
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAny])
 def update_intake(request, id):
 
     if request.method == 'PUT':
@@ -104,7 +107,9 @@ def update_intake(request, id):
 
         return HttpResponse()
 
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def appointment_request(request):
 
     if request.method == 'POST':
