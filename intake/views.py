@@ -173,6 +173,8 @@ def appointment_request(request):
         return HttpResponse()
 
 
+
+
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -184,16 +186,14 @@ def form_list(request):
 
         response = form_table.scan(
             FilterExpression=Attr('dateSubmitted').exists(),
-            ProjectionExpression="#id, PatientId, dateSubmitted",
+            ProjectionExpression="#id, PatientId, dateSubmitted, formProcessed",
             ExpressionAttributeNames={'#id': 'uuid'}
-
         )
 
         forms = response['Items']
         forms.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
 
         patient_table = dynamodb.Table('Patients')
-
 
         for form in forms:
             try:
@@ -231,3 +231,84 @@ def form_detail(request, id):
         form['patient'] = patient
 
         return HttpResponse(json.dumps(form))
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def appointment_request_list(request):
+
+    if request.method == 'GET':
+        dynamodb = connect()
+        appointment_request_table = dynamodb.Table('AppointmentRequests')
+        response = appointment_request_table.scan(
+            FilterExpression=Attr('dateSubmitted').exists(),
+            ProjectionExpression="#id, PatientId, dateSubmitted, requestProcessed",
+            ExpressionAttributeNames={'#id': 'uuid'}
+        )
+
+        appointment_requests = response['Items']
+        appointment_requests.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
+
+        patient_table = dynamodb.Table('Patients')
+
+        for appointment_request in appointment_requests:
+            try:
+                response = patient_table.get_item(
+                    Key={
+                        'uuid': appointment_request['PatientId']
+                    }
+                )
+
+                patient = response['Item']
+                appointment_request['LastNameRepr'] = patient['LastNameRepr']
+                appointment_request['FirstNameRepr'] = patient['FirstNameRepr']
+            except KeyError:
+                continue
+
+        return HttpResponse(json.dumps(appointment_requests))
+
+
+@api_view(['GET', 'PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def appointment_request_detail(request, id):
+
+    dynamodb = connect()
+    table = dynamodb.Table('AppointmentRequests')
+
+    if request.method == 'GET':
+
+        response = table.get_item(Key={'uuid': id})
+        appointment_request = response['Item']
+
+        patient_table = dynamodb.Table('Patients')
+        response = patient_table.get_item(Key={'uuid': appointment_request['PatientId']})
+        patient = response['Item']
+
+        appointment_request['patient'] = patient
+
+        return HttpResponse(json.dumps(appointment_request))
+
+    if request.method == 'PUT':
+
+        data = json.loads(request.body.decode())
+
+        updates = []
+        expression_attribute_values = {}
+
+        for key, value in data.items():
+            if value != "":
+                updates.append(f"{key} = :{key}")
+                expression_attribute_values[f":{key}"] = value
+
+        update_expression = "set " + ", ".join(updates)
+
+        response = table.update_item(
+            Key={'uuid': id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
+            ReturnValues="UPDATED_NEW"
+        )
+
+        return HttpResponse()

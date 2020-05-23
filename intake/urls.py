@@ -9,5 +9,7 @@ urlpatterns = [
     path('intake/<str:id>/', views.update_intake),
     path('appointment_request/', views.appointment_request),
     path('forms/', views.form_list),
-    path('forms/<str:id>/', views.form_detail)
+    path('forms/<str:id>/', views.form_detail),
+    path('appointment_request_list/', views.appointment_request_list),
+    path('appointment_request_detail/<str:id>/', views.appointment_request_detail),
 ]
