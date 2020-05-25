@@ -190,7 +190,10 @@ def form_list(request):
             ExpressionAttributeNames={'#id': 'uuid'}
         )
 
-        forms = response['Items']
+        try:
+            forms = response['Items']
+        except KeyError:
+            return HttpResponse(json.dumps([]))
         forms.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
 
         patient_table = dynamodb.Table('Patients')
