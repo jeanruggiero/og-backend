@@ -4,7 +4,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['api.ocularize.com']
+ALLOWED_HOSTS = ['ocularize-backend.us-west-2.elasticbeanstalk.com', 'api.ocularize.com']
 
 CORS_ORIGIN_WHITELIST = ['https://ocularize.com', 'https://www.ocularize.com', 'https://staff.ocularize.com']
 CSRF_TRUSTED_ORIGINS = ['https://app.ocularize.com']

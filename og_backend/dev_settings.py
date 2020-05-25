@@ -15,7 +15,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000', 'http://localhost:3000',
-                         'http://localhost:3001', 'https://app.highlift.io']
+                         'http://localhost:3001', 'https://www.ocularize.com']
 
 CSRF_TRUSTED_ORIGINS = ['127.0.0.1:3000', 'localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8000', 'https://app.highlift.io']
 CORS_ALLOW_CREDENTIALS = True
