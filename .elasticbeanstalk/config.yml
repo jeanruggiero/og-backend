@@ -1,0 +1,19 @@
+branch-defaults:
+  master:
+    environment: ocularize-backend
+environment-defaults:
+  ocularize-backend:
+    branch: null
+    repository: null
+global:
+  application_name: ocularize-backend
+  default_ec2_keyname: aws-eb
+  default_platform: Docker running on 64bit Amazon Linux 2
+  default_region: us-west-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: optometric-group
+  sc: git
+  workspace_type: Application

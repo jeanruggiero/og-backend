@@ -9,7 +9,7 @@ ALLOWED_HOSTS = ['ocularize-backend.us-west-2.elasticbeanstalk.com', 'api.ocular
 CORS_ORIGIN_WHITELIST = ['https://ocularize.com', 'https://www.ocularize.com', 'https://staff.ocularize.com']
 CSRF_TRUSTED_ORIGINS = ['https://app.ocularize.com']
 
-# SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 

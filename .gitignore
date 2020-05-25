@@ -7,7 +7,9 @@ environment_config.sh
 *.key
 
 # Elastic Beanstalk Files
-.elasticbeanstalk/*
+old_ebconfig/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+
 
