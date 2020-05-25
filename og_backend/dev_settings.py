@@ -14,7 +14,8 @@ SECRET_KEY = '&trsrer%$d1bwqs#hd_1r=cb0-h^n@q9=8&92+n8b2$uejz#89'
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000', 'http://localhost:3000', 'https://app.highlift.io']
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000', 'http://localhost:3000',
+                         'http://localhost:3001', 'https://app.highlift.io']
 
 CSRF_TRUSTED_ORIGINS = ['127.0.0.1:3000', 'localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8000', 'https://app.highlift.io']
 CORS_ALLOW_CREDENTIALS = True
