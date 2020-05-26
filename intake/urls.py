@@ -12,4 +12,5 @@ urlpatterns = [
     path('forms/<str:id>/', views.form_detail),
     path('appointment_request_list/', views.appointment_request_list),
     path('appointment_request_detail/<str:id>/', views.appointment_request_detail),
+    path('update_password/', views.password_change),
 ]
