@@ -24,33 +24,33 @@ def patient_id(request):
 
         last_name = request.GET.get('lastName').lower()
         first_name = request.GET.get('firstName').lower()
-        dob = request.GET.get('DOB')
+        dob = request.GET.get('dob')
         email = request.GET.get('email').lower()
 
         dynamodb = connect()
         table = dynamodb.Table('Patients')
         response = table.query(
-            IndexName="LastName-index",
-            KeyConditionExpression=Key('LastName').eq(last_name)
+            IndexName="lastName-index",
+            KeyConditionExpression=Key('lastName').eq(last_name)
         )
 
         for item in response['Items']:
-            if item['LastName'] == last_name and item['FirstName'] == first_name and item['DOB'] == dob and \
-                    item['Email'] == email:
+            if item['lastName'] == last_name and item['firstName'] == first_name and item['dob'] == dob and \
+                    item['email'] == email:
                 return HttpResponse(item['uuid'])
 
         item = {
-            'LastName': last_name,
+            'lastName': last_name,
             'uuid': str(uuid.uuid4()),
-            'LastNameRepr': request.GET.get('lastName'),
-            'FirstName': first_name,
-            'FirstNameRepr': request.GET.get('firstName'),
-            'DOB': dob,
-            'Email': email
+            'lastNameRepr': request.GET.get('lastName'),
+            'firstName': first_name,
+            'firstNameRepr': request.GET.get('firstName'),
+            'dob': dob,
+            'email': email
         }
 
-        if request.GET.get('MI'):
-            item['MI'] = request.GET.get('MI').upper()
+        if request.GET.get('mi'):
+            item['mi'] = request.GET.get('mi').upper()
 
         table.put_item(Item=item)
 
@@ -62,14 +62,14 @@ def patient_id(request):
 def new_intake(request):
 
     if request.method == 'GET':
-        patient_id = request.GET.get('patientId');
+        patient_id = request.GET.get('patientId')
 
         dynamodb = connect()
         table = dynamodb.Table('IntakeForms')
 
         item = {
             'uuid': str(uuid.uuid4()),
-            'PatientId': patient_id
+            'patientId': patient_id
         }
 
         table.put_item(Item=item)
@@ -121,10 +121,9 @@ def appointment_request(request):
 
         patient_info = data.pop('patientInformation')
 
-
         last_name = patient_info.get('lastName').lower()
         first_name = patient_info.get('firstName').lower()
-        dob = patient_info.get('DOB')
+        dob = patient_info.get('dob')
         email = patient_info.get('email').lower()
 
         dynamodb = connect()
@@ -132,31 +131,31 @@ def appointment_request(request):
 
         # Get a list of patients from the database whose last name matches
         response = table.query(
-            IndexName="LastName-index",
-            KeyConditionExpression=Key('LastName').eq(last_name)
+            IndexName="lastName-index",
+            KeyConditionExpression=Key('lastName').eq(last_name)
         )
 
         # Look for this patient in the list of patients returned from the database
         for item in response['Items']:
-            if item['LastName'] == last_name and item['FirstName'] == first_name and item['DOB'] == dob and \
-                    item['Email'] == email:
+            if item['lastName'] == last_name and item['firstName'] == first_name and item['dob'] == dob and \
+                    item['email'] == email:
                 # Found the requested patient
                 patient_id = item['uuid']
                 break
         else:
             # Did not find the requested patient, so add a new one
             item = {
-                'LastName': last_name,
+                'lastName': last_name,
                 'uuid': str(uuid.uuid4()),
-                'LastNameRepr': patient_info.get('lastName'),
-                'FirstName': first_name,
-                'FirstNameRepr': patient_info.get('firstName'),
-                'DOB': dob,
-                'Email': email
+                'lastNameRepr': patient_info.get('lastName'),
+                'firstName': first_name,
+                'firstNameRepr': patient_info.get('firstName'),
+                'dob': dob,
+                'email': email
             }
 
-            if data.get('MI'):
-                item['MI'] = patient_info.get('MI').upper()
+            if data.get('mi'):
+                item['mi'] = patient_info.get('mi').upper()
 
             table.put_item(Item=item)
 
@@ -166,7 +165,7 @@ def appointment_request(request):
         table = dynamodb.Table('AppointmentRequests')
 
         data['uuid'] = str(uuid.uuid4())
-        data['PatientId'] = patient_id
+        data['patientId'] = patient_id
 
         table.put_item(Item=data)
 
@@ -186,14 +185,11 @@ def form_list(request):
 
         response = form_table.scan(
             FilterExpression=Attr('dateSubmitted').exists(),
-            ProjectionExpression="#id, PatientId, dateSubmitted, formProcessed",
+            ProjectionExpression="#id, patientId, dateSubmitted, formProcessed",
             ExpressionAttributeNames={'#id': 'uuid'}
         )
 
-        try:
-            forms = response['Items']
-        except KeyError:
-            return HttpResponse(json.dumps([]))
+        forms = response['Items']
         forms.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
 
         patient_table = dynamodb.Table('Patients')
@@ -202,13 +198,13 @@ def form_list(request):
             try:
                 response = patient_table.get_item(
                     Key={
-                        'uuid': form['PatientId']
+                        'uuid': form['patientId']
                     }
                 )
 
                 patient = response['Item']
-                form['LastNameRepr'] = patient['LastNameRepr']
-                form['FirstNameRepr'] = patient['FirstNameRepr']
+                form['lastNameRepr'] = patient['lastNameRepr']
+                form['firstNameRepr'] = patient['firstNameRepr']
             except KeyError:
                 continue
 
@@ -228,7 +224,7 @@ def form_detail(request, id):
         form = response['Item']
 
         patient_table = dynamodb.Table('Patients')
-        response = patient_table.get_item(Key={'uuid': form['PatientId']})
+        response = patient_table.get_item(Key={'uuid': form['patientId']})
         patient = response['Item']
 
         form['patient'] = patient
@@ -246,7 +242,7 @@ def appointment_request_list(request):
         appointment_request_table = dynamodb.Table('AppointmentRequests')
         response = appointment_request_table.scan(
             FilterExpression=Attr('dateSubmitted').exists(),
-            ProjectionExpression="#id, PatientId, dateSubmitted, requestProcessed",
+            ProjectionExpression="#id, patientId, dateSubmitted, requestProcessed",
             ExpressionAttributeNames={'#id': 'uuid'}
         )
 
@@ -259,13 +255,13 @@ def appointment_request_list(request):
             try:
                 response = patient_table.get_item(
                     Key={
-                        'uuid': appointment_request['PatientId']
+                        'uuid': appointment_request['patientId']
                     }
                 )
 
                 patient = response['Item']
-                appointment_request['LastNameRepr'] = patient['LastNameRepr']
-                appointment_request['FirstNameRepr'] = patient['FirstNameRepr']
+                appointment_request['lastNameRepr'] = patient['lastNameRepr']
+                appointment_request['firstNameRepr'] = patient['firstNameRepr']
             except KeyError:
                 continue
 
@@ -286,7 +282,7 @@ def appointment_request_detail(request, id):
         appointment_request = response['Item']
 
         patient_table = dynamodb.Table('Patients')
-        response = patient_table.get_item(Key={'uuid': appointment_request['PatientId']})
+        response = patient_table.get_item(Key={'uuid': appointment_request['patientId']})
         patient = response['Item']
 
         appointment_request['patient'] = patient
