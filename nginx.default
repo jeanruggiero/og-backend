@@ -2,9 +2,7 @@
 
 server {
     listen 80;
-    server_name api.highlift.io;
-    error_log /dev/stderr;
-    access_log /dev/stdout;
+    server_name api.ocularize.com;
 
     location / {
         proxy_pass http://127.0.0.1:8010;
