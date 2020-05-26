@@ -12,7 +12,6 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authtoken.models import Token
 
 
 import uuid
@@ -314,20 +313,23 @@ def appointment_request_detail(request, id):
 
         return HttpResponse()
 
+
 @api_view(['POST', 'GET'])
-@authentication_classes(TokenAuthentication)
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def password_change(request):
 
     if request.method == 'GET':
         if request.user.email:
-            return HttpResponse(json.loads({'passwordChangeRequired': False}))
+            return HttpResponse(json.dumps({'passwordChangeRequired': False}))
         else:
-            return HttpResponse(json.loads({'passwordChangeRequired': True}))
+            return HttpResponse(json.dumps({'passwordChangeRequired': True}))
 
     if request.method == 'POST':
         data = json.loads(request.body.decode())
         user = request.user
-        user.set_password(data.password)
-        user.email = data.email
+        user.set_password(data['password'])
+        user.email = data['email']
+
+        user.save()
         return HttpResponse()
