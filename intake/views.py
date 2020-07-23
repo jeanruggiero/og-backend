@@ -184,8 +184,26 @@ def form_list(request):
         dynamodb = connect()
         form_table = dynamodb.Table('IntakeForms')
 
+        if request.query_params.get('processed') is not None:
+
+            processed = request.query_params.get('processed') == 'true'
+
+            if request.query_params.get('office') is not None:
+                filter_expression = (Attr('dateSubmitted').exists() &
+                                     ~Attr('formProcessed').eq(not processed) &
+                                     Attr('office').eq(request.query_params.get('office')))
+
+            else:
+                filter_expression = (Attr('dateSubmitted').exists() &
+                                     ~Attr('formProcessed').eq(not processed))
+        elif request.query_params.get('office') is not None:
+            filter_expression = (Attr('dateSubmitted').exists() &
+                                 Attr('office').eq(request.query_params.get('office')))
+        else:
+            filter_expression = Attr('dateSubmitted').exists()
+
         response = form_table.scan(
-            FilterExpression=Attr('dateSubmitted').exists(),
+            FilterExpression=filter_expression,
             ProjectionExpression="#id, patientId, dateSubmitted, formProcessed",
             ExpressionAttributeNames={'#id': 'uuid'}
         )
