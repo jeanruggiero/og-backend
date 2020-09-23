@@ -209,6 +209,18 @@ def form_list(request):
         )
 
         forms = response['Items']
+
+        while 'LastEvaluatedKey' in response:
+            # Response contains results of partial scan - continue scanning until entire table has been scanned
+            response = form_table.scan(
+                FilterExpression=filter_expression,
+                ProjectionExpression="#id, patientId, dateSubmitted, formProcessed",
+                ExpressionAttributeNames={'#id': 'uuid'},
+                ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+
+            forms.extend(response['Items'])
+
         forms.sort(key=(lambda form: form['dateSubmitted']), reverse=True)
 
         patient_table = dynamodb.Table('Patients')
@@ -225,6 +237,7 @@ def form_list(request):
                 form['lastNameRepr'] = patient['lastNameRepr']
                 form['firstNameRepr'] = patient['firstNameRepr']
             except KeyError:
+                print(form['patientId'])
                 continue
 
         return HttpResponse(json.dumps(forms))
